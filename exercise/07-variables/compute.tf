@@ -25,17 +25,15 @@ data "aws_ami" "ubuntu_ami" {
 }
 
 resource "aws_instance" "ec2_instance" {
-  ami           = data.aws_ami.ubuntu_ami.id
-  instance_type = "t3.micro"
+  ami                         = data.aws_ami.ubuntu_ami.id
+  instance_type               = var.ec2_instance_type
   associate_public_ip_address = true
 
   root_block_device {
-    volume_size           = 10
-    volume_type           = "gp3"
+    volume_size           = var.ec2_volume_config.volume_size
+    volume_type           = var.ec2_volume_config.volume_type
     delete_on_termination = true
   }
 
-  tags = {
-    Name = "demo-ec2"
-  }
+  tags = merge(local.common_tags, var.additional_tags)
 }
