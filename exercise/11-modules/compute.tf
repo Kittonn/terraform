@@ -1,0 +1,33 @@
+locals {
+  instance_type = "t3.micro"
+}
+
+data "aws_ami" "ubuntu_ami" {
+  most_recent = true
+
+  owners = ["099720109477"]
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-*-26.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+module "ec2_instance" {
+  source = "terraform-aws-modules/ec2-instance/aws"
+
+  name = local.project_name
+  ami  = data.aws_ami.ubuntu_ami.id
+
+  instance_type          = local.instance_type
+  vpc_security_group_ids = [module.vpc.default_security_group_id]
+  subnet_id              = module.vpc.public_subnets[0]
+
+  tags = local.common_tags
+}
+
